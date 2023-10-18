@@ -1,0 +1,82 @@
+\documentclass[a4paper,10pt]{book}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{mathrsfs}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\usetikzlibrary{math} %needed tikz library
+\usepackage{bm}
+\usepackage{appendix}
+\usepackage{algorithm}
+%\usepackage{arevmath}     % For math symbols
+\usepackage[noend]{algpseudocode}
+
+
+\newcommand{\example}[1]{\vspace{0.2cm}\framebox[0.92\textwidth]{ \parbox[c]{0.9\textwidth}{{\bf Example: }  #1}}\vspace{0.2cm}}
+
+\def\ud{\mathrm{d}}
+\def\E{\mathrm{E}}
+\def\pij{p_{ij}}
+\def\part{\partial}
+\def\<{\langle}
+\def\>{\rangle}
+\def\ux{\underline{x}}
+%\newcommand{\bm}[1]{\boldmath{ #1}}
+%opening
+
+
+ {%
+   \definecolor{BLACK}{gray}{0}
+   \definecolor{WHITE}{gray}{1}
+   \definecolor{RED}{rgb}{1,0,0}
+   \definecolor{GREEN}{rgb}{0,1,0}
+   \definecolor{BLUE}{rgb}{0,0,1}
+   \definecolor{CYAN}{cmyk}{1,0,0,0}
+   \definecolor{MAGENTA}{cmyk}{0,1,0,0}
+   \definecolor{YELLOW}{cmyk}{0,0,1,0}
+ }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+
+%\usepackage{epsfig,amssymb, color}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\1}{\mathbb I}
+\newcommand{\p}{\mathbbm P}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\bx}{\mathbf x}
+\newcommand{\bt}{\mathbf t}
+\newcommand{\dd}{\partial}
+\newcommand{\sm}{\setminus}
+
+
+\title{Lecture notes: Epidemics on Networks}
+\author{Dr. Alejandro Lage Castellanos, and ChatGPT4}
+
+\makeindex
+
+\begin{document}
+\maketitle
+\tableofcontents
+% 
+% \begin{abstract}
+% 
+% \end{abstract}
+
+%\index
+ \include{chapt_1_classical_results}
+ \include{chapt_3_networks}
+ \include{chapt_2_monte_carlo_simulations}
+ \include{chapt_4_mean_field}
+ \include{chapt_5_reconstruct}
+
+
+\chapter{Cascade epidemics and contact tracing}
+
+\section{Effects of contact tracing and quarantine}
+
+\end{document}

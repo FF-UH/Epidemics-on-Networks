@@ -1,0 +1,332 @@
+\chapter{Mean field solution of epidemics on Networks}
+
+
+The well-mixed SIS model is represented by these ``reactions''
+\begin{eqnarray*}
+ S + I &\xrightarrow{\beta}& 2I \\
+ I &\xrightarrow{\mu}& S  
+\end{eqnarray*}
+and the dynamics variables corresponded to the ammount of elements of each specie: $\bm{n} = (n_S,n_I)$. 
+In such model there is no consideration for the spatial structure of the epidemic, a factor that is fundamental in reality. A way to introduce space into epidemics is to study contact networks, {\it i.e.} a graph $G(V,E)$ of individuals $i \in \{1,\ldots,N\}$, whose epidemic state is represented by $X_i(t) \in \{S,I,R\}$ or $X_i \in \{S,I\}$ in the SIS model, and whose possible interactions with other individuals is defined by the edges of the graph $(i,j)\in V$.
+
+In what follows we focus on continuous time compartment epidemic models on networks. Now, instead of a global reaction with a global rate, we have a set of reactions for every given node of the graph:
+\begin{eqnarray*}
+  X_i &\xrightarrow{r_{S}(X_i,X_{\delta i})}& S \\
+  X_i &\xrightarrow{r_{I}(X_i,X_{\delta i})}& I
+\end{eqnarray*}
+The standard susceptible-infectious-susceptible model (SIS) considers the nodes to be in either of two compartments (states):
+\begin{itemize}
+ \item $X_i = 0 \equiv S \Rightarrow \mbox{susceptible}$
+ \item $X_i = 1 \equiv I \Rightarrow \mbox{infectious}$ 
+\end{itemize}
+and is the simplest standard for recurrent transmissible diseases. The epidemic is thus a continuous time stochastic process with only two admitted transitions occurring at
+\begin{itemize}
+ \item rate $\beta$, at which a link $(i,j)$ can transmit the state $1$ from node $i$ to $j$;
+ \item rate $\mu$ at which state $1$ decays to state $0$ on any infectious node.
+\end{itemize}
+Explicitly the set of reactions on a single node are
+\begin{eqnarray*}
+X_i:\quad  S &\xrightarrow{  r(X_{\delta i})}& I \qquad \mbox{with rate } r(X_{\delta i}) = \beta \sum_{j\in \delta i } \delta_{X_j,I} \\
+X_i:\quad  I &\xrightarrow{\phantom{xx}\mu\phantom{xx}}& S
+\end{eqnarray*}
+assuming the simplest case of homegeous links in the network (all with the same $\beta$). The fact that 
+\begin{itemize}
+ \item transition rates are independent of time
+ \item and infection rates are additive
+\end{itemize}
+are simplifications valid in the exponential case, but could be not valid (and are not) in general. For instance, the time a person is infecious from a given desease, has more a bell shape than an exponential.
+
+These extensive set of reactions, define a transition rate over the entire stochastic system 
+$\bm{X} = (X_i,\ldots,X_N)$, susceptible of being treated with the same tools we studied before:
+\begin{itemize}
+ \item Numerically: Gillespie's Stochastic Simulation Algorithm (SSA) 
+ \item Analytically: master equation
+\end{itemize}
+
+In this class we are going to study both approaches. An analytical treatment of the master equation will be in general impossible, and some approximations, under the general cathegory of mean field approximations, can be used instead.
+
+\section{Master equation}
+
+Any continuous time dynamic graphical model with binary variables $\sigma \in \{-1,1\}$ (in our case $X \in \{S,I\}$), can be formally described by a master equation.  The dynamics are fully defined by the rate $r_i(\bm{\sigma})$, which is the probability per unit of time that the variables change their states from $s_i \rightarrow -s_i$. The distribution $P(\bm{\sigma},t)$ is the probability that the system is in the state $\bm{\sigma}$ at time $t$, and the configuration space of this stochastic process is governed by the joint master equation:
+\begin{equation}
+\frac{\ud P ({\bm\sigma}) }{\ud t} = - \sum_{i=1}^N \Big[
+r_i({\bm\sigma}) P ({\bm\sigma}) - r_i(F_i({\bm\sigma})) P (F_i(\bm{\sigma}) ) \Big],
+\label{eq:originalME}
+\end{equation}
+where $F_i$ represents the inversion operator on variable $i$, i.e. $F_i (\bm{\sigma}) = {\sigma_1, \dots, -\sigma_{i}, \dots, \sigma_N}$ and we have omitted the time dependence of $P(\bm{\sigma}) = P(\bm{\sigma},t)$ for simplicity of notation. This is a balance equation. The first term inside the summation accounts for transitions from the state $\bm{\sigma}$ of each of the elements of the system, and the second term accounts for transitions from any configuration of the system to the state $\bm{\sigma}$.
+
+This equation is exact, but it is impractical for treating medium-sized systems since it represents a set of $2^N$ (for an $N$-variable system) coupled differential equations. However, in a system of local interactions, where the connections are given by a graph and the transition rates $r_i(\bm{\sigma}, t)$ depend only on the spin configuration $i$ and its neighborhood $\partial_i$, the system can be described by differential equations of the individual probability $P (\sigma_i)$.
+
+
+
+Taking into account the topology of the system, a master equation for the probability $P (\sigma_i)$ of each node in the system can be written as:  
+\begin{eqnarray}
+\frac{\ud P (\sigma_i) }{\ud t} = - \sum_{\sigma_{part i}} \Big[
+r_i(\sigma_i, \sigma_{part i}) P(\sigma_i, \sigma_{part i})
+-  r_i(-\sigma_i, \sigma_{part i}) 
+P(-\sigma_i, \sigma_{part i}) \Big]
+\label{eq:CMEPi_pij} 
+\end{eqnarray}
+where $\partial_i$ is the neighborhood of node $i$ and $P(\sigma_i, \sigma_{part i})$ is the joint probability of a configuration of node $i$ and its neighborhood. This new system of equations is still exact, and the probability $P(\bm{\sigma})$ can be calculated as the product of the individual probabilities $\big[ \prod_{i=0}^N P(\sigma_i)$ of all nodes in the system. But unlike equation (\ref{eq:originalME}), this set is not a closed set of differential equations, because the time evolution of the joint probabilities is not known.
+
+
+\section{Mean field approximations to the SIS model} \label{sec:MF}
+
+Mean field approximations for deriving continuous-time differential equations for epidemic processes on contact networks are fundamentally based on considering correlations between the expected values of random variables up to a certain level of factorization, usually the first two.
+
+
+
+Attempts to reduce the complexity start from factorizing the single master equation into many equations for each node marginals $P_i(X_i,t)$. Given that the $X$'s are two-state variables, $P_i(X_i)$ consists of two values $P_i(X_i = 0)$ and $P_i(X_i = 1)$, where we have identified the susceptible state as $X=0$, and the infectious as $X=1$. Futhermore, since $P_i(X_i=0) = 1 - P(X_i=1)$, only one value is enough to represent $P(X_i)$. In the particular choice of $S\to 0$ and $X \to 1$, it is the case that $P_i(X_i=1) = \E [X_i] $, such that the master equation can be written as an evolution of the expected values of the infectious state: 
+\begin{equation}
+\frac{\ud \E\left[  X_{i}\left(  t\right)  \right]  }{\ud t}  =\E\left[  -\mu
+X_{i}\left(  t\right)  +\beta (1-X_i(t))   
+\sum_{j=1}^{N}a_{ij}X_{j}\left(  t\right)  \right]
+\label{eq:meanXdt}
+\end{equation}
+where $a_{ij}$ are the elements of the adjacency matrix, meaning that $a_{ij} = 1$ if nodes $i$ and $j$ are neighbors ($(i,j)\in E$) and is zero otherwise.
+
+However, the expectation value on the right hand side acts over products of variables $X_j(t) (1-X_i(t))$, which requires a differential equation for the evolution of the correlations. Not surprisingly, the two point correlations functions depend on three point correlations and so on and so forth. 
+
+
+\subsection{Individual-based mean field (IBMF) approximation}
+
+
+The simplest closure of equation eq.  (\ref{eq:meanXdt}) is the individual-based mean field (IBMF) in which independence is assumed $\E[X_i(t) X_j(t)] \approx \E[ X_i(t)] \: \E [ X_j(t)] \equiv \rho_i(t) \varrho_j(t)$ ($\varrho_{i}$ is the probability that node $i$ is infectious) and therefore eqs. (\ref{eq:meanXdt}) are now a closed set of non linear different ial equations:
+\begin{equation}
+\frac{d \rho_i(t)  }{dt}=-
+ \mu \, \rho_i(t)  +\beta [1-\rho_i(t)] \sum_{j \in \partial i} 
+\rho_j(t)
+\label{eq:IBMFSISequations}
+\end{equation}
+where we used the notation $\partial i$ to represent the set of neighbors of node $i$.
+
+\subsection{Pair-based mean field (PBMF)}
+
+The second simplest way to close the equations is to consider a differential equation for the correlations between neighboring variables $X_i X_j$. We, therefore, need a master equation for the evolution of such products. Such equation is given by
+\[ \frac{\ud \E X_i X_j}{\ud t} = \E \left[ -2\mu X_i X_j +\beta X_j (1-X_i )\sum_{k=1}^N a_{ik} X_k + \beta X_i (1-X_j )\sum_{k=1}^N a_{jk} X_k  \right]  
+\]
+A reordering of the terms results in 
+\begin{eqnarray}
+\frac{\ud \E\left[  X_{i}X_{j}\right]  }{dt}  
+&  =& -2\mu \E[X_{i}X_{j}] + \beta\sum_{k=1}^{N} a_{ik}\E[X_{j}X_{k}] + \beta\sum_{k=1}^{N} a_{jk}\E[X_{i}X_{k}]  \nonumber \\
+&& \phantom{-2\mu \E[X_{i}X_{j}]} -\beta\sum_{k=1}^{N}(a_{jk} +a_{ik}) \E[X_{i}X_{j}X_{k}]
+\label{eq:EXiXidt} 
+\end{eqnarray}
+but a factorization is assumed for higher correlations. Different approaches have been used to approximate $\E[X_i X_j X_k]$ in terms of smaller correlations. In this paper we will compare with the approximations proposed in \cite{cator2012second} $\E[X_i X_j X_k] \approx \E[X_i X_j]\E[X_k] \equiv \phi_{ij}(t) \, \rho_i(t)$:
+%\begin{eqnarray}
+% \frac{\ud\rho_{i}(t)}{\ud t} &=& -\mu \rho_{i}(t) + \beta \sum_{j \in \partial i} \left[ %\rho_{j}(t) - \rho_{ij}(t) \right] \label{eq:rhoi_dt_PBMF} \\
+% \frac{\ud \rho_{ij}(t)}{\ud t} &=& -2 \mu \rho_{ij}(t) + \beta \left[ \rho_{i}(t) + %%\rho_{j}(t) - 2 \rho_{ij}(t) \right] + \nonumber \\
+% & & + \; \beta \sum_{k \in \partial i \setminus j} \left[ \rho_{jk}(t) - \rho_{ij}(t) \rho_{k}(t) \right] + \beta \sum_{k \in \partial j \setminus i} \left[ \rho_{ik}(t) - \rho_{ij}(t) \rho_{k}(t) \right] \label{eq:rhoij_dt_PBMF}
+%\end{eqnarray}
+\begin{eqnarray}
+ \frac{\ud\rho_{i}(t)}{\ud t} &=& -\mu \rho_{i}(t) + \beta \sum_{j \in \partial i} \phi_{ij}(t)  \label{eq:rhoi_dt_PBMF} \\
+\frac{\ud \phi_{ij}(t)}{\ud t} &=& -(2\mu+\beta) \phi_{ij}(t) + \mu \rho_i(t)-  \beta \phi_{ij}(t) \sum_{k \in \partial j \setminus i} \rho_{k}(t)  \nonumber \\ & & + 
+\beta \left[ 1 - \rho_{i}(t) - \phi_{ij}(t) \right] \sum_{k \in \partial i \setminus j} \rho_{k}(t) \label{eq:joint_PBMF1}
+\end{eqnarray}
+and \cite{mata2013pair} $\E[X_i X_j X_k] \approx \frac{\E[X_i X_j]\E[X_j,X_k]}{E[X_j]} \equiv \frac{\phi_{ij}(t) \, \phi_{kj}(t)}{\rho_{j}(t)}$.
+\begin{eqnarray}
+ \frac{\ud\rho_{i}(t)}{\ud t} &=& -\mu \rho_{i}(t) + \beta \sum_{j \in \partial i} \phi_{ji}(t)  \nonumber \\
+\frac{\ud \phi_{ij}(t)}{\ud t} &=& -(2\mu+\beta) \phi_{ij}(t) + \mu \rho_i(t)  -  \beta \phi_{ij}(t)/(1-\rho_{j}(t)) \sum_{k \in \partial j \setminus i} \phi_{kj}(t)  \nonumber \\ & & + 
+\beta \left[ 1 - \rho_{j}(t) - \phi_{ij}(t) \right]/(1-\rho_{i}(t)) \sum_{k \in \partial i \setminus j} \phi_{ki}(t)
+\label{eq:joint_PBMF2}
+\end{eqnarray}
+
+We will refer to the two different approximations shown in (\ref{eq:joint_PBMF1}) and (\ref{eq:joint_PBMF2}) as {\bf PBMF-1} and {\bf PBMF-2}, respectively. 
+
+In both approaches, IBMF and PBMF, the expected values evolving in time are intended to be expectations over different stochastic stories of the whole epidemic process. Therefore they are to be compared with averages over many Monte Carlo simulations of such process.
+
+% \section{Endemic (steady) state }
+% We analytically compute the epidemic size in the endemic state for these approximations for random regular graphs. Since every node has the same degree $k$, the equations are similar for every node, and we can assume that in the steady state the topology is averaged out, and all the probabilities are the same, regardless the node indexes.
+% 
+% Working explicitly for the CME approximation, stationarity means we have to set $\frac{\ud p_i }{\ud t}$ and $\frac{\ud \pij }{\ud t}$ to $0$ in equations (\ref{eq:CMESISpi}) and (\ref{eq:CMESISpij}):
+% \begin{eqnarray}
+%   \mu p_i &=&  \beta (1-p_i)\sum_{k} p_{ki} \equiv \beta (1-p_i) k \pij \\
+%    \mu \pij &=& (1-\pij) \beta \sum_{k \in part i \setminus j}  p_{ki} \equiv (1-\pij) \beta (k-1)
+% \end{eqnarray}
+% % 
+% % As the graph is a random regular and each node has $k$ neighbors in the stationary state each $p_i$ and $\pij$ should has the same value so:
+% % \begin{eqnarray}
+% %   \mu p_i &=&  \beta (1-p_i) k \pij \\
+% %   \mu \pij &=&  (1-\pij) \beta (k-1) \pij 
+% % \end{eqnarray}
+% where now the indices $i$ and $i,j$ are generic. Solving this system of equations we get for the two variables $p_i$ and $p_{ij}$:
+% \begin{eqnarray}
+%  p_i &=&\frac{\lambda(k-1)-1}{\lambda(k-1)-1+(k-1)/k} 
+%   %\frac{1}{1+\frac{\mu}{k\beta(1-\frac{\mu}{(k-1)\beta})}} 
+%   \qquad   \pij =  1- \frac{\mu}{(k-1)\beta}  
+% \end{eqnarray}
+% This can be already tested against simulations of random regular graphs. Furthermore we can obtain the spreading rate or effective infection rate $\lambda = \beta/\mu$ above which there is an endemic outbreak (sustained in time epidemic) by solving $p_i(k) = 0$, resulting in the epidemic threshold $\lambda_c = 1/(k-1)$. A similar procedure for all five approximations results in table \ref{tb:table_endemic_state}. 
+% 
+% The critical values $\lambda_c=1/k$ for IBMF are consistent with those in  \cite{pastor2015epidemic} and citations therein with similar approaches. PBMF-2 prediction $\lambda_c = 1/(k-1)$, however, is known to be a second order correction to the endemic threshold \cite{mata2013pair,cator2012second}, and it is numerically \cite{mata2013pair,ferreira2012numeric} seen to outdo the individual based value.
+% 
+% 
+% 
+% %(y+y*(y-1)*x-2/x-1)/((y-1)*(x*y+2))
+% \begin{center}
+% \begin{table}
+% \def\arraystretch{2.5}
+% \begin{tabular}{|c|c|c|}
+%  \hline Approximation & Endemic state (equilibrium) & $\lambda_c$ \\
+% \hline
+% %& & \\
+%  IBMF & \(p_i =  1 - \frac{1}{k\lambda} \) & $\lambda_c = \frac{1}{k}$\\
+% %& & \\
+% \hline
+% %& & \\
+%  PBMF-1 & $p_i = \frac{k+k(k-1)\lambda-2/\lambda -1}{(k-1)(\lambda k +2)}$ & $ \lambda_c = \frac{\sqrt{1+\frac{8k}{k-1}}-1}{2 k} $\\
+% %& & \\
+% \hline
+% %& & \\
+%  PBMF-2 & $p_i = \frac{\lambda(k-1)-1}{\lambda(k-1)-1+(k-1)/k}$ & $ \lambda_c = \frac{1}{k-1} $\\
+% %& & \\
+% % \hline
+% % %& & \\
+% %  rDMP & $\begin{array}{lcl}  
+% %  p_i &=&  1- \frac{1}{(k-1)\lambda} \\
+% %   \pij &=&   \frac{(k-1) \lambda-1}{k \lambda} 
+% % \end{array}$
+% %  &  $\lambda_c = \frac 1 {k-1}$\\
+% % %& & \\
+% % \hline
+% % %& & \\
+% %  CME & $\begin{array}{lcl}
+% % p_i &=&\frac{\lambda(k-1)-1}{\lambda(k-1)-1+(k-1)/k}  \\
+% %   \pij &=&  1- \frac{1}{(k-1)\lambda}  
+% % \end{array}$
+% %  & $\lambda_c = \frac 1 {k-1}$ \\ 
+% %  %& & \\ 
+%  \hline
+% \end{tabular}
+%  \caption{Steady state and epidemic threshold $\lambda_c$ under four approximations: IBMF, PBMF}%, rDMP and CME}
+%  \label{tb:table_endemic_state}
+%  \end{table}
+% \end{center}
+% 
+% 
+% In figure \ref{fig:Eq_vs_R0} we present the analytical predictions of each approximation for the epidemic size $p_i$ at the steady state as a function of $\lambda$. When compared to Monte Carlo results, mean field approximations (IBMF and PBMF-1) give an overestimation of the epidemic size at small $\lambda$, and rDMP an underestimation at large $\lambda$. Meanwhile, CME and PBMF-2 seems to be a better prediction mixing the large $\lambda$ behavior of IBMF and PBMF-1 with the small $\lambda$ behavior of rDMP.
+% 
+% The results presented in figure \ref{fig:Eq_vs_R0} are very similar to those shown in \cite{gleeson2013binary} where a tractable master equation is presented for the evolution in time of the epidemic size in a graph with the same degree. This description has more resemblance with a degree base aproximation and, as in our case, it catches with similar accuracy the value of the epidemic threshold for a random regular graph of conectivity 3.
+% 
+% \section{Average case : THIS IS NOT READY, DONT READ}
+% \label{sec:average}
+% The systems of equations defining IBMF, PBMF, rDMP and CME could be large and delicate to solve on a given graph, although a simple numerical integration normally works. However, in many cases we are interested in general predictions for certain families of graphs or topologies. In this section we derive an average version of the CME approximation to characterize SIS epidemics on uncorrelated random graphs. Our approach relates closely to that in \cite{goltsev2012localization, van2012epidemic}, based on IBMF approximation, where the prevalence at the stationary state is derived just above the epidemic threshold. %In our case based on averaging CME we are presenting a master equation to the prevalence.    
+% 
+% 
+% \begin{figure}
+%  \includegraphics[width=0.43\textwidth]{Steady.eps}
+%   \includegraphics[width=0.43\textwidth]{epidemic_treshold.eps}\caption{ {\bf Left}: Comparison between Monte Carlo simulations and the predicted endemic equilibrium for each approximation as a function of $\lambda$ for random regular graphs. Each MC point is an average of the last value of of the probability of infected computed for $10^4$ simulations over the 1000 nodes in the system. {\bf Rigth}: Comparison between the epidemic threshold predicted by the methods as a function of graphs connectivity. \label{fig:Eq_vs_R0}}
+% \end{figure}
+% 
+% The simplest description of a graph ensemble is given by the distribution of degrees of its nodes. In the case of uncorrelated graphs, that distribution is the full description of the ensemble. One of the firts theoretical approaches used for epidemic modeling on  networks was the degree based mean field approach (DBMF) \cite{pastor2001epidemic}. It provided a set of master equations for the probability of a node of degree $k$ to be infected at time $t$, assuming statistical equivalence of all nodes of degree $k$. As stated in \cite{pastor2015epidemic} DBMF can be obtained by performing a degree-wise average over the IBMF equations. 
+% 
+% A similar procedure can be performed in the context of CME. Since the CME equations depend on the information coming from the neighbors in the network, it is expected that nodes more connected will have a different behavior than those less connected. We therefore attempt to reduce the number of equations in our system by characterizing all nodes with the same degree by a couple of average parameters 
+% \begin{equation}
+%  p^{\gamma}= \frac 1 {N^{\gamma}} \sum_{i:d_i=\gamma+1} p_i \qquad p_{\rightarrow}^{\gamma} = \frac 1 {M^\gamma} \sum_{i:d_i=\gamma+1} \sum_{j \in \partial i} p_{ij}^{\gamma} 
+%  \end{equation}
+% In both cases the normalization factors count the number of terms in the sums: $N^\gamma$ is the number of nodes with degree  $k = \gamma+1$ while $M^\gamma$ is the number of graph's edges that contain one of these $N^\gamma$ nodes. 
+% 
+% Averaging the equations (\ref{eq:CMESISpi}) and (\ref{eq:CMESISpij}), and after some simplifications, we get the average CME:
+% \begin{eqnarray}
+% \dot{p}^{\gamma}&=& -\mu p^{\gamma} + \beta (\gamma+1) (1-p^{\gamma}) \sum_{\gamma^{\prime}} g(\gamma^{\prime}) p_{\rightarrow}^{\gamma^{\prime}}\label{eq:average_pigamma} \\
+% \dot{p}_{\rightarrow}^{\gamma}&=& -\mu p_{\rightarrow}^{\gamma} + \beta \gamma (1-p_{\rightarrow}^{\gamma}) \sum_{\gamma^{\prime}} g (\gamma^{\prime}) p_{\rightarrow}^{\gamma^{\prime}} \label{eq:average_pijgamma}
+% \end{eqnarray}
+% where $g(\gamma)$ is a contact degree distribution. A node extracted randomly from the set of nodes $V$ has degree $k$ with distribution $k\sim P(k)$. However, in order to average the CME equations we rather need to know the excess-degree distribution $g(\gamma)$ of nodes that are sampled by randomly picking up an edge $(i,j)\in E$. Both distributions are related, assuming there is no further correlation in the graph, by:
+%  \begin{equation}
+%   g(\gamma)=\frac{(\gamma+1)P(\gamma+1)}{\sum_{\gamma}(\gamma+1)P(\gamma+1)} \quad \gamma\in[0,1\ldots].\label{eq:uncorrelated}
+%  \end{equation}
+% 
+%   \begin{figure}
+%  \includegraphics[width=0.7\textwidth]{ave_reg_1.eps}
+%   \caption{Average probablility of being infected as function of time. The epidemic outbreak was in 10 nodes of each graph of 1000 nodes in in an ensemble of 10 random regular graphs of connectivity 3. Each point of MC is an average over $10^4$ simulations.\label{fig:average}}
+% %\caption{Epidemic size as function of time. The epidemic outbreak was in 10 nodes of the graph of 100 nodes and connectivity 3 for each node, with $\beta=0.1$ and $\gamma=0.05$. \label{fig:average_10}}
+% \end{figure}
+% 
+% Following \cite{pastor107066optimal, pastor2001epidemic} we can obtain the endemic threshold in terms of $\Theta = \sum_\gamma g(\gamma) p_{\rightarrow}^{\gamma}$. In the stationary state $\dot{p}^{\gamma} = 0$ and $\dot{p}_{\rightarrow}^{\gamma} = 0$ in (\ref{eq:average_pigamma}) and (\ref{eq:average_pijgamma}) leads to equations for $p^{\gamma}$ and  $p_{\rightarrow}^{\gamma}$ as a function of $\Theta$:
+% \begin{equation}
+% p^{\gamma}= \frac{\lambda (\gamma+1) \Theta}{1+\lambda (\gamma+1) \Theta } \qquad p_{\rightarrow}^{\gamma}= \frac{\lambda \gamma  \Theta}{1+\lambda \gamma \Theta } . \label{eq:pijtheta} 
+% \end{equation}
+% Plugging the last equation into the definition of $\Theta$, we obtain a self-consistency equation similar to the one in \cite{pastor107066optimal, pastor2001epidemic, pastor2001epidemic63}
+% \begin{equation}
+%  \Theta = f(\Theta) \equiv \sum_{\gamma} \frac{(\gamma+1)P(\gamma+1)}{\langle k \rangle } \frac{\lambda \gamma \Theta}{1+\lambda \gamma \Theta }  \label{eq:self-Theta}
+% \end{equation}
+% which always has a disease-free solution $\Theta = 0$. This solution becomes unstable (endemic case) when  $\partial_\Theta f(\Theta) |_0=1$, which defines the critical parameters resulting in
+% \begin{equation}
+% \lambda_c = \frac{\langle k\rangle}{\langle k^2\rangle- \langle k\rangle}    \label{eq:non-zero}
+% \end{equation}
+% where $\langle k \rangle $ is the average node degree. This result improves over the naive mean field prediction $\lambda)c = \langle k\rangle/\langle k^2\rangle$ \cite{pastor2015epidemic}. It trivially contains the result shown in table \ref{tb:table_endemic_state} for CME in random regular graphs and reduces to  it as $\langle k^2 \rangle = \langle k \rangle ^2$. For graphs with Poisson degree distribution (like Erdos-Renyi) $\langle k^2 \rangle = \langle k \rangle ^2 + \langle k \rangle$ the epidemic threshold becomes $ \lambda_c = \frac{1 }{\langle k\rangle}$.
+
+
+
+\section{Practical Python Class: simulating epidemics on networks}
+
+
+{\bf Preclass:} Install Epidemic on Networks (EoN) library on Python
+
+\begin{enumerate}
+ \item Simulate an SIR model on the Zachary club graph. Plot the results of $S(t)$, $I(t)$ and $R(t)$.
+\item Make an animation of the process.
+\end{enumerate}
+
+\newpage
+\subsubsection{Homework}
+For this homework,  do not code the epidemic process nor the numerical integration of IBMF and PBMF, yourself. 
+Please base your code on the EoN library in python.
+
+{\bf Task 1: } Topologies and epidemic threshold for SIS.
+
+As said in the conference, the SIS model corresponds to these reactions
+\begin{eqnarray*}
+ S + I &\xrightarrow{\beta}& 2I \\
+ I &\xrightarrow{\mu}& S  
+\end{eqnarray*}
+We will study SIS on networks, for different values of the infectivity parameter $\beta$, and for fixed $\mu = 1.0$. It is known that for high values of $\beta$, the epidemic is sustained in time (call endemic), while for low values, the epidemic disapear. The critical value $\beta_c$ is the smallest value tha allows for a sustained epidemic, also known as endemic threshold.
+
+\begin{enumerate}
+ \item Study an SIS epidemic for different values of R0 in two topologies: Erdos-Renyi and scale free networks.
+\begin{itemize}
+ \item Create two large networks ($N=1000$) with the same average degree $\langle k \rangle = 6$, one with an Erdos-Renyi topology, and one with a scale free topology. For the latter, usa an arbitrary exponent $\gamma$ for the distribution, but 
+ adjust the parameters to have the same expected degree $\langle k \rangle = 6$.
+ \item Show a histogram of the degree distribution in both networks. Compute the expected values $\langle k \rangle$ and $\langle k^2 \rangle$ for both networks.
+ \item Use the EoN package in python to simulate epidemics on each of these networks, with starting conditions $I(0)=200$ and $S(0)=800$, randomly selected among the nodes of the network.
+ \item Use the EoN package in python to compute the IBMF and PBMF numerical integration of the SIS epidemic on these networks. 
+ \item As an example, show the evolution in time of infected individuals for some $\beta$, in both networks, using all threea approaches, the simulation, the IBMF and PBMF approximations.
+
+\item Program a function that, for a given value of $\beta$, computes the average number of infected individuals over many simulations (say 100 simulations). DO NOT USE IBMF/ PBMF, only simulations.
+
+\item Plot the average number of infected individuals at the end of simulations, for different values of $\beta$, for both types of neworks.
+
+\item According to computations discussed in the lecture, the critical value should be related to the degree distribution of the network as 
+\[\lambda_c \equiv \frac{\beta_c }{ \mu} = \frac{\langle k \rangle}{\langle k^2 \rangle }.\]
+Compare this prediction to the numerical results obtained.
+
+\item Do both topologies have the same epidemic threshold. Why? 
+\end{itemize}
+\end{enumerate}
+
+\newpage
+
+\begin{enumerate}
+ \item Write down the Individual Based Mean Field equations for the SIR model on a network.
+ \item Consider SIS model on the Zachary Club graph, starting the epidemic from node 0.
+ \begin{itemize}
+  \item Compute the average over many simulations of an epidemic.
+ \item Compare this average with the results of integrating IBMF and PBMF.
+\item What is the average time of infection of node 19 in the simulations?
+\item How does it compares with the moment in which probability of infection is 0.5, accroding to both approximations?
+ \end{itemize}
+\end{enumerate}
+ 
+
+
+
+
+\subsubsection{Research homework}
+Study an SIS epidemic model on the Les Miserables network.
+\begin{enumerate}
+ \item Run many simulations for different R0 values. Find approximately the epidemic threshold.
+ \item Study the epidemic slightly above the epidemic threshold.
+ \item Compute the fraction of time that each character is infected, in a long run.
+ \item What is the correlation of this time with: clustering coefficient, eccentricity, betweenness of each node?
+ \item What is the correlation of this time with the ammount of times that each character is mentioned in the novel?
+\end{enumerate}
+

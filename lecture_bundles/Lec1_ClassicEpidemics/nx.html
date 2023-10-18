@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 900px;
+                 height: 500px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"bipartite": 0, "color": "#97c2fc", "id": "Evelyn Jefferson", "label": "Evelyn Jefferson", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E1", "label": "E1", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E2", "label": "E2", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E3", "label": "E3", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E4", "label": "E4", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E5", "label": "E5", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E6", "label": "E6", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E8", "label": "E8", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E9", "label": "E9", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Laura Mandeville", "label": "Laura Mandeville", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E7", "label": "E7", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Theresa Anderson", "label": "Theresa Anderson", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Brenda Rogers", "label": "Brenda Rogers", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Charlotte McDowd", "label": "Charlotte McDowd", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Frances Anderson", "label": "Frances Anderson", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Eleanor Nye", "label": "Eleanor Nye", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Pearl Oglethorpe", "label": "Pearl Oglethorpe", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Ruth DeSand", "label": "Ruth DeSand", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Verne Sanderson", "label": "Verne Sanderson", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E12", "label": "E12", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Myra Liddel", "label": "Myra Liddel", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E10", "label": "E10", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Katherina Rogers", "label": "Katherina Rogers", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E13", "label": "E13", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E14", "label": "E14", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Sylvia Avondale", "label": "Sylvia Avondale", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Nora Fayette", "label": "Nora Fayette", "shape": "dot", "size": 10}, {"bipartite": 1, "color": "#97c2fc", "id": "E11", "label": "E11", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Helen Lloyd", "label": "Helen Lloyd", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Dorothy Murchison", "label": "Dorothy Murchison", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Olivia Carleton", "label": "Olivia Carleton", "shape": "dot", "size": 10}, {"bipartite": 0, "color": "#97c2fc", "id": "Flora Price", "label": "Flora Price", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "Evelyn Jefferson", "to": "E1", "width": 1}, {"from": "Evelyn Jefferson", "to": "E2", "width": 1}, {"from": "Evelyn Jefferson", "to": "E3", "width": 1}, {"from": "Evelyn Jefferson", "to": "E4", "width": 1}, {"from": "Evelyn Jefferson", "to": "E5", "width": 1}, {"from": "Evelyn Jefferson", "to": "E6", "width": 1}, {"from": "Evelyn Jefferson", "to": "E8", "width": 1}, {"from": "Evelyn Jefferson", "to": "E9", "width": 1}, {"from": "Laura Mandeville", "to": "E1", "width": 1}, {"from": "Laura Mandeville", "to": "E2", "width": 1}, {"from": "Laura Mandeville", "to": "E3", "width": 1}, {"from": "Laura Mandeville", "to": "E5", "width": 1}, {"from": "Laura Mandeville", "to": "E6", "width": 1}, {"from": "Laura Mandeville", "to": "E7", "width": 1}, {"from": "Laura Mandeville", "to": "E8", "width": 1}, {"from": "Theresa Anderson", "to": "E2", "width": 1}, {"from": "Theresa Anderson", "to": "E3", "width": 1}, {"from": "Theresa Anderson", "to": "E4", "width": 1}, {"from": "Theresa Anderson", "to": "E5", "width": 1}, {"from": "Theresa Anderson", "to": "E6", "width": 1}, {"from": "Theresa Anderson", "to": "E7", "width": 1}, {"from": "Theresa Anderson", "to": "E8", "width": 1}, {"from": "Theresa Anderson", "to": "E9", "width": 1}, {"from": "Brenda Rogers", "to": "E1", "width": 1}, {"from": "Brenda Rogers", "to": "E3", "width": 1}, {"from": "Brenda Rogers", "to": "E4", "width": 1}, {"from": "Brenda Rogers", "to": "E5", "width": 1}, {"from": "Brenda Rogers", "to": "E6", "width": 1}, {"from": "Brenda Rogers", "to": "E7", "width": 1}, {"from": "Brenda Rogers", "to": "E8", "width": 1}, {"from": "Charlotte McDowd", "to": "E3", "width": 1}, {"from": "Charlotte McDowd", "to": "E4", "width": 1}, {"from": "Charlotte McDowd", "to": "E5", "width": 1}, {"from": "Charlotte McDowd", "to": "E7", "width": 1}, {"from": "Frances Anderson", "to": "E3", "width": 1}, {"from": "Frances Anderson", "to": "E5", "width": 1}, {"from": "Frances Anderson", "to": "E6", "width": 1}, {"from": "Frances Anderson", "to": "E8", "width": 1}, {"from": "Eleanor Nye", "to": "E5", "width": 1}, {"from": "Eleanor Nye", "to": "E6", "width": 1}, {"from": "Eleanor Nye", "to": "E7", "width": 1}, {"from": "Eleanor Nye", "to": "E8", "width": 1}, {"from": "Pearl Oglethorpe", "to": "E6", "width": 1}, {"from": "Pearl Oglethorpe", "to": "E8", "width": 1}, {"from": "Pearl Oglethorpe", "to": "E9", "width": 1}, {"from": "Ruth DeSand", "to": "E5", "width": 1}, {"from": "Ruth DeSand", "to": "E7", "width": 1}, {"from": "Ruth DeSand", "to": "E8", "width": 1}, {"from": "Ruth DeSand", "to": "E9", "width": 1}, {"from": "Verne Sanderson", "to": "E7", "width": 1}, {"from": "Verne Sanderson", "to": "E8", "width": 1}, {"from": "Verne Sanderson", "to": "E9", "width": 1}, {"from": "Verne Sanderson", "to": "E12", "width": 1}, {"from": "Myra Liddel", "to": "E8", "width": 1}, {"from": "Myra Liddel", "to": "E9", "width": 1}, {"from": "Myra Liddel", "to": "E10", "width": 1}, {"from": "Myra Liddel", "to": "E12", "width": 1}, {"from": "Katherina Rogers", "to": "E8", "width": 1}, {"from": "Katherina Rogers", "to": "E9", "width": 1}, {"from": "Katherina Rogers", "to": "E10", "width": 1}, {"from": "Katherina Rogers", "to": "E12", "width": 1}, {"from": "Katherina Rogers", "to": "E13", "width": 1}, {"from": "Katherina Rogers", "to": "E14", "width": 1}, {"from": "Sylvia Avondale", "to": "E7", "width": 1}, {"from": "Sylvia Avondale", "to": "E8", "width": 1}, {"from": "Sylvia Avondale", "to": "E9", "width": 1}, {"from": "Sylvia Avondale", "to": "E10", "width": 1}, {"from": "Sylvia Avondale", "to": "E12", "width": 1}, {"from": "Sylvia Avondale", "to": "E13", "width": 1}, {"from": "Sylvia Avondale", "to": "E14", "width": 1}, {"from": "Nora Fayette", "to": "E6", "width": 1}, {"from": "Nora Fayette", "to": "E7", "width": 1}, {"from": "Nora Fayette", "to": "E9", "width": 1}, {"from": "Nora Fayette", "to": "E10", "width": 1}, {"from": "Nora Fayette", "to": "E11", "width": 1}, {"from": "Nora Fayette", "to": "E12", "width": 1}, {"from": "Nora Fayette", "to": "E13", "width": 1}, {"from": "Nora Fayette", "to": "E14", "width": 1}, {"from": "Helen Lloyd", "to": "E7", "width": 1}, {"from": "Helen Lloyd", "to": "E8", "width": 1}, {"from": "Helen Lloyd", "to": "E10", "width": 1}, {"from": "Helen Lloyd", "to": "E11", "width": 1}, {"from": "Helen Lloyd", "to": "E12", "width": 1}, {"from": "Dorothy Murchison", "to": "E8", "width": 1}, {"from": "Dorothy Murchison", "to": "E9", "width": 1}, {"from": "Olivia Carleton", "to": "E9", "width": 1}, {"from": "Olivia Carleton", "to": "E11", "width": 1}, {"from": "Flora Price", "to": "E9", "width": 1}, {"from": "Flora Price", "to": "E11", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

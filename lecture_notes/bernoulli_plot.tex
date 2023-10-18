@@ -1,0 +1,95 @@
+
+
+\[
+\begin{tikzpicture}
+ \def\dx{0.5}
+ \def\oldy{0}
+ \def\x{0}
+ \foreach \y / \col  [remember=\y as \oldy] in {6/green, 6/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1;\points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }
+ \def\oldy{0}
+ \def\x{1.0}
+ \foreach \y / \col  [remember=\y as \oldy] in {4.5/green, 5.3/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1;\points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }
+
+   \def\oldy{0}
+ \def\x{2.5}
+ \foreach \y / \col  [remember=\y as \oldy] in {4/green, 5/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1; \points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }
+  
+ \def\oldy{0}
+ \def\x{3.5}
+ \foreach \y / \col  [remember=\y as \oldy] in {2.8/green, 4.5/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1; \points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }  
+  \def\oldy{0}
+ \def\x{5}
+ \foreach \y / \col  [remember=\y as \oldy] in {2.4/green, 4.2/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1;\points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }  
+  \def\oldy{0}
+ \def\x{6}
+ \foreach \y / \col  [remember=\y as \oldy] in {2/green, 4/red, 6/black}
+  {
+    \draw[\col,thick] (\x,\oldy+0.1) rectangle (\x+\dx,\y);
+    \tikzmath{\he = \y-\oldy-0.1;\points = int( 5*(\y-\oldy)); }
+    \foreach \i in {1,...,\points}
+    {       \fill[\col] (\x+\dx*random,\oldy+0.1 + \he *random) circle (0.1);
+    }
+  }  
+% \def\r{7}
+% \def\c{0}
+% 
+% \draw (\c,\c) circle (\r);
+% 
+% \foreach \x in {1,2,3,4,5,6}
+% {
+% \tikzmath{\r=\x/2;\c=\r/sqrt(2);}
+% \draw (-\c, \c) circle (\r);
+% \draw (\c, -\c) circle (\r); 
+% }  
+%   
+%   \foreach \x / \col in {0/green, 1.2/red, 2.4/black, 3.6/blue, 4.8/orange}
+%   {
+%     \draw[\col,thick] (\x,0) rectangle (\x+0.8,2);
+%     \foreach \i in {1,...,10}
+%     {
+%       \fill[\col] (\x+0.1*rand,0.1*rand+0.2*\i) circle (0.05);
+%     }
+%   }
+%   \foreach \x in {0,1.2,2.4,3.6,4.8}
+%   { 
+%     \draw[green,thick] (\x,0) rectangle (\x+0.8,2);
+%     \draw[red,thick] (\x,2.2) rectangle (\x+0.8,4.2);
+%     \draw[black,thick] (\x,4.4) rectangle (\x+0.8,6.4);
+%   }
+\end{tikzpicture}
+\]

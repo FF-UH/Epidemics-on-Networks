@@ -1,0 +1,212 @@
+\chapter{Monte Carlo simulation of epidemics}
+
+So, epidemics are stochastic proceses. Some analytical results exist, for the simpest of cases, as the SIR or SIS dynamics. In more complex cases, simulations are the only tool at hand to study their dynamics.
+
+As we mentioned in last chapter, epidemics can be seen as a set of stochastic reactions, turning healthy people into infectious, and turning them into recovered, at certain rates. Next we discuss how to simulate such types of procceses in a computer.
+
+%  Sources:
+%  https://www.normalesup.org/~doulcier/teaching/adaptive_dynamics/dyad02.html
+%  https://courses.maths.ox.ac.uk/pluginfile.php/20809/mod_resource/content/2/lec9.pdf
+%  
+
+\section{Rates and exponential distributions}
+
+\subsubsection*{Exponential distribution}
+
+As you shall remember (see appendix) from your probabilies class, the exponential distribution is the continuous time limit of a process in which you flip a coin as many times as needed until you find the first ``head'' coming out \footnote{In appendix of this chapter, you will find a brief reminder of what conditional probability means, and the deduction of the continuos exponential distribution as a limit of a Bernoulli process, if you are interested to check.}. It is clear from the nature of this process, that if a head has not shown up after we toss the coin 5 times, then the probability that it will appear in the next $x$ shots, is the same probability that it had in any $x$ shots, regardless of the fact that we already shot it 5 times. This results in a very important property of exponential distributions: they do not have memory.
+
+The probability density of the exponential distribution is
+\[ f(x) = {\lambda} e^{- \lambda x}
+\]
+The cumulative distribution function is therefore
+\[ F(x) =  \int_{-\infty}^x  f(x) = 1-e^{- \lambda  x} \] (defined only for $x>0$, with $F(x)=0$ otherwise), and the mean value $\langle X \rangle = \frac 1 \lambda $.
+
+
+{\bf memorylessness of exponential random variables}
+
+Let's look at an interesting case. Let's prove that the exponential distribution has no memory. This means the following:
+\[P(X> s+t | X>s) = P(X>t)
+\]
+This property is called memorylessness because the probability of $X>s+t$ given that $X>s$ is independent of the value of $s$. Using the definition of conditional probability,
+\[P(X> s+t | X>s) = \frac {P(X> s+t, X>s)}{ P(X>s)}  
+\]
+But $P(X> s+t, X>s) = P(X> s+t ) $, since the set $\{x:x>s+t\} \subset \{x:x>s\}$. Note that here the notation $P(A,B)$ corresponds to the probability of both $A$ and $B$ occurring simultaneously, that is, $P(A\cap B)$. Therefore,
+\[P(X> s+t | X>s) = \frac {P(X> s+t)} {P(X>s)}  
+\]
+The probabilities $P(X>a) = 1 - F(a)$, so $P(X>s+t)  =  e^{-\lambda (s+t)} $ and $P(X>s)  =  e^{- \lambda s}$, from which
+\[P(X> s+t | X>s) = \frac {P(X> s+t)}{ P(X>s)}  = \frac {e^{- \lambda(s+t)}} {e^{-\lambda s}}  =  e^{-\lambda  t } = 1-F(t) = P(X>t)\]
+thus concluding the proof.
+
+This property of the exponential density has the following physical implication. The decay of a radioactive atom is a process that occurs with exponential probability. The lack of memory of this probability means that regardless of the past lifetime of an atom, its probability of decaying in the future is always a decreasing exponential.
+
+{\bf Law of the minimum of independent exponential variables:}
+
+Another fundamental result for the following discussion is the following propertie of exponential r.v.:
+\begin{equation*}
+\begin{cases}
+X_i \sim \mathcal Exp(\lambda_i), \\
+Y_i=\min_i X_i, \\ Z_i = 
+\text{argmin}_i X_i 
+\end{cases}
+\Rightarrow
+\begin{cases}
+Y \sim \mathcal Exp(\sum_i \lambda_i) \\
+\mathbb P(Z=i) = \frac{\lambda_i}{\sum_j \lambda_j}
+\end{cases}
+\end{equation*}
+
+The proof of which is left to the interested student.
+
+
+\section{Gillespie's Stochastic Simulation Algorithm}
+
+The Gillespie algorithm is a stochastic simulation algorithm that is often used to simulate chemical reaction systems. It simulates the time evolution of a reaction system by randomly selecting which reaction will occur next and when it will occur.
+
+Consider the following chemical reaction system:
+\begin{align}
+A + B &\xrightarrow{k_1} C + B\\
+C &\xrightarrow{k_2} 2 D  \\
+2 D + B&\xrightarrow{k_3} A 
+\end{align}
+where $A$, $B$, $C$, and $D$ are chemical species, and $k_1$, $k_2$, and $k_3$ are reaction rate constants.
+
+The interpretation of this list of reactions is the following. We have a system with a certain ammount of elements $X=(n_A,n_B,n_C,n_D)$ at time $t$. At any moment in time, any of the three reactions can take place. Let us call $\Delta X_r$ the vector of the effect that reaction $r$ has on the system, in this case:
+\[  \Delta X_1= \begin{pmatrix} 
+              -1\\
+              0 \\
+              1\\
+              0
+             \end{pmatrix}
+\qquad  \Delta X_2= \begin{pmatrix} 
+              0\\
+              0 \\
+              -1\\
+              2
+             \end{pmatrix}
+\qquad \Delta X_3= \begin{pmatrix} 
+              1\\
+              -1 \\
+              0\\
+              -2
+             \end{pmatrix}
+\qquad \]
+
+So, the stochastic proccess is actually defined by a sequence of growing times $t_{k-1}< t_{k}$ at which reactions occur, and the index of the reaction occurring:
+\[ \mathcal P = \{ (t_1, r_1), (t_2, r_2).. \}\]
+such that the stochastic variable is given by 
+\[ X(t) = X(t_{k-1}) + \Delta X_{r_k} \]
+where $k$ is such that $t_{k-1} <t < t_{k}$. In other words, the $t_k$ are the moments in which reactions occur, and at those points, the state of the system changes from $X(t)$ to $X(t+\ud t) = X(t^+) = X(t) + \Delta X_{r_k}$.
+
+So, simulating such stochastic process amounts to defining a way to generate the stochastic squence $\mathcal P$. Furthermore, this process is a Markov process, meaning that the values of $(t_k, r_k)$ depend only on the current state of the system $X(t_{k-1}^+)$.
+
+\subsection{Gillespie's algorithm}
+
+To simulate this system using Gillespie's algorithm, we first define the propensity functions for each of the three reactions:
+
+\begin{align}
+a_1 &= k_1 [A][B] \\
+a_2 &= k_2 [C] \\
+a_3 &= k_3 [D]^2 [B]
+\end{align}
+where $[A]$, $[B]$, $[C]$, $[D]$, and $[E]$ are the concentrations of the corresponding chemical species.
+
+We then randomly select the time $\tau$ until the next event occurs and the reaction that will occur next. The probability that reaction $i$ will occur next is given by:
+\begin{equation}
+P_i = \frac{a_i}{\sum_j a_j}
+\end{equation}
+where the sum is taken over all reactions.
+
+Once we have determined which reaction will occur next, we update the concentrations of the chemical species according to the stoichiometry of the reaction. This is summarized in the algorithm \ref{alg:gillespie}.
+\begin{algorithm}{Gillespie SSA}
+\begin{algorithmic}[1]
+\State $t = 0$
+\State $X(0) = X_0$ \Comment {Set initial state }
+\While{$t < t_{end}$}
+    \State Update($a_i$) \Comment{Calculate each reactions propensity}
+    \State $a_0 = \sum_i a_i$ \Comment{Total propensity}
+    \For{$i=1\ldots K$}\Comment{Compute probabilities for every reaction}
+    \State $P_i = \frac{a_i}{a_0}$ 
+    \EndFor
+    \State $r_1 \sim U(0,1) $ \Comment{Generate random numbers, $r_1$ and $r_2$}
+    \State $r_2 \sim U(0,1) $    
+    \State $\tau = \frac{1}{a_0} \ln\frac{1}{r_1}$ \Comment{Time until the next reaction}
+    \State $k = i | \sum_k^{i-1} P_k < r_2 <\sum_k^i P_{i}$ \Comment{Next reaction with probability $P_i$}
+    \State $X(t+\tau) = X(t) + \Delta X_k$
+    \State Set $t = t + \tau$
+\EndWhile
+\end{algorithmic}
+\label{alg:gillespie}
+\caption{}
+\end{algorithm}
+
+This example illustrates how Gillespie's algorithm can be used to simulate the time evolution of a simple chemical reaction system. By defining the propensity functions and randomly selecting the next event, we can simulate the stochastic behavior of the system and gain insight into its dynamics.
+
+
+\section{Practical Python class}
+
+In this practical class we will program the Gillespie algorithm for stochastic simulations in Python. I will share with you a Jupyter Notebook.
+
+Once the algorithm is running, we will test it in three different models:
+\begin{enumerate}
+ \item Drunken man model
+ \item SIR model
+ \item SIS model
+\end{enumerate}
+
+In the first two cases, we will compare the results of the simulation with the known analytical solution.
+
+
+
+\section{Practical Homework}
+
+Consider the model SIRS, as follows:
+\begin{eqnarray*}
+ S + I &\xrightarrow{\beta}& 2I \\
+ I &\xrightarrow{\mu}& R \\
+ R &\xrightarrow{\eta}& S \\
+\end{eqnarray*}
+
+\begin{enumerate}
+ \item Make a simulation of a system of $N=1000$ individuals with parmeters $\beta = 0.02$, and $\mu=\eta=0.01$. Use as initial condition $(n_S,n_I,n_R) = (N/3,N/3,N/3)$.
+ \item By visual inspection in your previous simulation, define a value of $T$ where the system is at equilibrium (approximately not changing).
+ \item Study the long time behavior of this system for a range of values of $\beta \in (0.001,0.002,0.003,\ldots$ $0.009,0.01,0.011,0.012$ $\ldots,0.02)$
+ \item Write down the differential equations for this system.
+ \item Study the steady state analytically, by setting all time derivatives to zero, and solving for the other equilibrium values of $S,I$ and $R$.
+ \item Compare to the long time study as a function of $\beta$.
+\end{enumerate}
+ 
+
+
+
+\section*{Appendix: Conditional probability}
+The continuous conditional distribution has the usual expressions $P(A|B) = P(A B)/P(B)$. In the case of continuous random variables, the probability of any event is given by integrating the probability density over the set of points that constitute the event $P(A) = \int_A \ud x f(x)$, so that
+\[
+P(A|B) = \frac{\int_{A B} \ud x f(x)}{\int_B\ud x f(x)}
+\]
+The independence of events A and B is equivalent to either of the equalities
+\[ P(A B) =P(A) P(B) \qquad P(A|B ) = P(A) \]
+
+
+
+\section*{Appendix: Exponential distribution}
+
+
+As you shall remember from your probabilies class, the exponential distribution is the continuous time limit of a process in which you flip a coin as many times as needed until you find the first ``head'' coming out. What follows is a deduction of such property.
+
+Let's consider the case of waiting time in a Bernoulli process with success probability $q$. Let $K\in \{1,2,3,\ldots\}$ be the corresponding discrete random variable for the number of experiments that must be performed until the first successful result occurs. The distribution of $K$ is given by:
+\[ P(K=k) = (1-q)^{k-1} q
+\]
+To understand the following steps, let's think of $K$ as the number of time intervals we must wait until we observe success. Now, suppose we want to discretize time into smaller intervals, and let's focus on the variable $X = K/N$ where $N$ is the number of intervals in which one second is divided. Let's also consider, as is natural, that the divisions of the intervals do not affect the real probability of the phenomenon, so $q=q'/N$. In this way, the probability density of the variable $X$ is obtained as the limit $N\to \infty$ from the variable $K$, known as the continuous limit:
+\begin{eqnarray*}
+ P(X = k/N) &=& P(K=k) = (1-q)^{k-1} q \\
+	    &=&  (1-\frac{q'}{N})^{N x-1} \frac{q'}{N} \\
+f(x) &=& \lim_{N\to\infty} \frac{P(X = k/N)}{1/N}	=  q' e^{-x q'}
+\end{eqnarray*}
+
+The resulting distribution is called the exponential density, and is usually expressed in terms of the parameter $\lambda = 1/{q'}$
+\[f(x) = \frac{e^{-x/\lambda}}{\lambda}
+\]
+
+
+
+
